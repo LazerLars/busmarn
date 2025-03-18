@@ -1,3 +1,9 @@
-# SNAILMOWER17000
-a LOVE2d game
-![](gif/gameplay.gif)
+# BUSMARN
+LÖVE JAM 2025
+
+
+
+Source:  
+https://github.com/kikito/anim8  
+
+https://github.com/kikito/tween.lua

@@ -27,6 +27,12 @@ local images = {}
 
 local animations = {}
 
+local bus_states = {
+    driving = 'driving',
+    braking = 'braking',
+    idleing = 'idleing'
+}
+
 local bus = {
     x = 0,
     y = 0,
@@ -35,16 +41,18 @@ local bus = {
     width = 24,
     height = 12,
     scaling = 2,
-    facing_right = true
+    facing_left = true,
+    bus_state = bus_states.idleing
 }
+
 
 local mouse = {
     x_start = 0,
     y_start = 0,
     x_current = 0,
     y_current = 0,
-    width = 0,
-    height = 0
+    width = 0, -- used to store the value of the width of the current ongoing selection
+    height = 0 -- used to store the value of the height of the current on going selection
 }
 
 local mouse_last_selection = mouse
@@ -76,16 +84,20 @@ function love.load()
     -- path to images
     imagePath.watermelon_cursor = "src/sprites/cursor_watermelon.png"
     imagePath.bus_idle_sheet = "src/sprites/bus_idle_sheet.png"
+    imagePath.bus_driving_sheet = "src/sprites/bus_driving_sheet.png"
     
     -- create the images
     images.watermelon_cursor = love.graphics.newImage(imagePath.watermelon_cursor)
     images.bus_idle_sheet = love.graphics.newImage(imagePath.bus_idle_sheet)
+    images.bus_driving_sheet = love.graphics.newImage(imagePath.bus_driving_sheet)
     
     local bus_idle_grid = anim8.newGrid(24, 12, images.bus_idle_sheet:getWidth(), images.bus_idle_sheet:getHeight())
+    local bus_drinving_grid = anim8.newGrid(24, 12, images.bus_driving_sheet:getWidth(), images.bus_driving_sheet:getHeight())
 
     animations.bus_idle_animation = anim8.newAnimation(bus_idle_grid('1-3',1), 0.1)
+    animations.bus_driving_animation = anim8.newAnimation(bus_drinving_grid('1-2', 1), 0.1)
 
-    move_bus = tween.new(2, bus, {x=bus.x_taget,y=bus.y_target}, tween.easing.inOutSine)
+    move_bus = tween.new(2, bus, {x=bus.x_taget,y=bus.y_target}, tween.easing.inOutSine) -- how do i check that this is finished?
 
 
     
@@ -95,6 +107,7 @@ function love.update(dt)
     mouse_x = maid64.mouse.getX()
     mouse_y = maid64.mouse.getY()
     animations.bus_idle_animation:update(dt)
+    animations.bus_driving_animation:update(dt)
     if love.mouse.isDown(1) then
 		mouse.x_current = maid64.mouse.getX()
 		mouse.y_current = maid64.mouse.getY()
@@ -102,7 +115,10 @@ function love.update(dt)
         mouse.height = mouse.y_current - mouse.y_start
 	end	
 
-    move_bus:update(dt)
+    local move_bus_complete = move_bus:update(dt)
+    if move_bus_complete then
+        bus.bus_state = bus_states.idleing
+    end
 end
 
 
@@ -127,7 +143,28 @@ function love.draw()
     love.graphics.rectangle("line", mouse.x_start, mouse.y_start, mouse.width, mouse.height)
 
     -- draw right facing bus
-    animations.bus_idle_animation:draw(images.bus_idle_sheet, bus.x, bus.y, 0, 2, 2)
+    if bus.facing_left then
+        if bus.bus_state == bus_states.idleing then
+            animations.bus_idle_animation:draw(images.bus_idle_sheet, bus.x, bus.y, 0, -2, 2, bus.width, 0)
+        elseif bus.bus_state == bus_states.driving then
+            animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, -2, 2, bus.width, 0)
+        elseif bus.bus_state == bus_states.braking then
+            animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, -2, 2, bus.width, 0) -- this needs to be switched to braking...
+            
+        end
+    else
+        
+        if bus.bus_state == bus_states.idleing then
+            animations.bus_idle_animation:draw(images.bus_idle_sheet, bus.x, bus.y, 0, 2, 2)
+        elseif bus.bus_state == bus_states.driving then
+            animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, 2, 2)
+        elseif bus.bus_state == bus_states.braking then
+            animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, 2, 2) -- this needs to be switched to braking...
+            
+        end
+        -- animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, 2, 2)
+        
+    end
     -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, 2, 2)
     -- draw left facing bus, offset with the width of the original bus image
     -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, -2, 2, 24, 0)
@@ -176,6 +213,13 @@ function love.mousepressed(x, y, button, istouch)
         bus.x_taget = maid64.mouse.getX()
         bus.y_taget = maid64.mouse.getY()
         move_bus = tween.new(2, bus, {x=maid64.mouse.getX(), y=maid64.mouse.getY()}, tween.easing.inOutSine)
+        bus.bus_state = bus_states.driving
+
+        if mouse_x < bus.x then
+            bus.facing_left = true
+        else
+            bus.facing_left = false
+        end
     end
  end
 
