@@ -29,7 +29,13 @@ local animations = {}
 
 local bus = {
     x = 0,
-    y = 0
+    y = 0,
+    x_taget = 0,
+    y_target = 0,
+    width = 24,
+    height = 12,
+    scaling = 2,
+    facing_right = true
 }
 
 local mouse = {
@@ -42,6 +48,9 @@ local mouse = {
 }
 
 local mouse_last_selection = mouse
+
+local mouse_x = 0
+local mouse_y = 0
 
 
 function love.load()
@@ -76,13 +85,15 @@ function love.load()
 
     animations.bus_idle_animation = anim8.newAnimation(bus_idle_grid('1-3',1), 0.1)
 
-    t1 = tween.new(2, bus, {x=300,y=300}, tween.easing.inOutSine)
+    move_bus = tween.new(2, bus, {x=bus.x_taget,y=bus.y_target}, tween.easing.inOutSine)
 
 
     
 end
 
 function love.update(dt)
+    mouse_x = maid64.mouse.getX()
+    mouse_y = maid64.mouse.getY()
     animations.bus_idle_animation:update(dt)
     if love.mouse.isDown(1) then
 		mouse.x_current = maid64.mouse.getX()
@@ -91,7 +102,7 @@ function love.update(dt)
         mouse.height = mouse.y_current - mouse.y_start
 	end	
 
-    t1:update(dt)
+    move_bus:update(dt)
 end
 
 
@@ -159,6 +170,12 @@ function love.mousepressed(x, y, button, istouch)
     if button == 1 then -- Versions prior to 0.10.0 use the MouseConstant 'l'
         mouse.x_start = maid64.mouse.getX()
         mouse.y_start = maid64.mouse.getY()
+    end
+
+    if button == 2 then
+        bus.x_taget = maid64.mouse.getX()
+        bus.y_taget = maid64.mouse.getY()
+        move_bus = tween.new(2, bus, {x=maid64.mouse.getX(), y=maid64.mouse.getY()}, tween.easing.inOutSine)
     end
  end
 
