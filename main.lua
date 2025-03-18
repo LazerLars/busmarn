@@ -3,6 +3,7 @@ if arg[2] == "debug" then
 end
 local maid64 = require "src/libs/maid64"
 local anim8 = require 'src/libs/anim8'
+local tween = require 'src/libs/tween'
 
 -- recommended screen sizes
 ---+--------------+-------------+------+-----+-----+-----+-----+-----+-----+-----+
@@ -20,9 +21,15 @@ local settings = {
 
 developerMode = true
 
-local images = {
-    path = {},
-    image = {}
+local imagePath = {}
+
+local images = {}
+
+local animations = {}
+
+local bus = {
+    x = 0,
+    y = 0
 }
 
 local mouse = {
@@ -57,32 +64,37 @@ function love.load()
 
     love.graphics.setFont(font)
 
-    images.path.watermelon_cursor = "src/sprites/cursor_watermelon.png"
-    images.image.watermelon_cursor = love.graphics.newImage(images.path.watermelon_cursor)
+    -- path to images
+    imagePath.watermelon_cursor = "src/sprites/cursor_watermelon.png"
+    imagePath.bus_idle_sheet = "src/sprites/bus_idle_sheet.png"
+    
+    -- create the images
+    images.watermelon_cursor = love.graphics.newImage(imagePath.watermelon_cursor)
+    images.bus_idle_sheet = love.graphics.newImage(imagePath.bus_idle_sheet)
+    
+    local bus_idle_grid = anim8.newGrid(24, 12, images.bus_idle_sheet:getWidth(), images.bus_idle_sheet:getHeight())
+
+    animations.bus_idle_animation = anim8.newAnimation(bus_idle_grid('1-3',1), 0.1)
+
+    t1 = tween.new(2, bus, {x=300,y=300}, tween.easing.inOutSine)
+
+
+    
 end
 
-function love.mousepressed(x, y, button, istouch)
-    if button == 1 then -- Versions prior to 0.10.0 use the MouseConstant 'l'
-        mouse.x_start = maid64.mouse.getX()
-        mouse.y_start = maid64.mouse.getY()
-    end
- end
-
 function love.update(dt)
-    
+    animations.bus_idle_animation:update(dt)
     if love.mouse.isDown(1) then
 		mouse.x_current = maid64.mouse.getX()
 		mouse.y_current = maid64.mouse.getY()
         mouse.width = mouse.x_current - mouse.x_start
         mouse.height = mouse.y_current - mouse.y_start
 	end	
+
+    t1:update(dt)
 end
 
-function love.mousereleased(x, y, button)
-    if button == 1 then
-        reset_mouse_selection()
-    end
- end
+
 
 function love.draw()
     
@@ -98,10 +110,17 @@ function love.draw()
         -- love.graphics.rectangle("fill", maid64.mouse.getX(),  maid64.mouse.getY(), 1,1)
     end
     
-    love.graphics.draw(images.image.watermelon_cursor,maid64.mouse.getX(), 
+    love.graphics.draw(images.watermelon_cursor,maid64.mouse.getX(), 
     maid64.mouse.getY())
     
     love.graphics.rectangle("line", mouse.x_start, mouse.y_start, mouse.width, mouse.height)
+
+    -- draw right facing bus
+    animations.bus_idle_animation:draw(images.bus_idle_sheet, bus.x, bus.y, 0, 2, 2)
+    -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, 2, 2)
+    -- draw left facing bus, offset with the width of the original bus image
+    -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, -2, 2, 24, 0)
+
     
     maid64.finish()--finishes the maid64 process
 end
@@ -135,8 +154,29 @@ function love.keypressed(key)
     end
 end
 
-function reset_mouse_selection()
+function love.mousepressed(x, y, button, istouch)
+    -- when the leftm mouse  is pressed, we want to save the initial click x,y position
+    if button == 1 then -- Versions prior to 0.10.0 use the MouseConstant 'l'
+        mouse.x_start = maid64.mouse.getX()
+        mouse.y_start = maid64.mouse.getY()
+    end
+ end
+
+ function love.mousereleased(x, y, button)
+    -- when the left mouse is released we want to reset the mouse selection so we can stop drawing the square on the screen
+    if button == 1 then
+        copy_last_mouse_selection()
+        reset_mouse_selection()
+    end
+ end
+
+function copy_last_mouse_selection()
+
     mouse_last_selection = copy_table(mouse)
+
+end
+
+function reset_mouse_selection()
 
     mouse.x_start = 0
     mouse.y_start = 0
@@ -147,10 +187,24 @@ function reset_mouse_selection()
     
 end
 
+-- make a copy of a table
 function copy_table(t)
     local copy = {}
     for k, v in pairs(t) do
         copy[k] = v  -- Copy each value
+    end
+    return copy
+end
+
+-- make a copy of nested tables
+function deep_copy(t)
+    local copy = {}
+    for k, v in pairs(t) do
+        if type(v) == "table" then
+            copy[k] = deep_copy(v)
+        else
+            copy[k] = v
+        end
     end
     return copy
 end
