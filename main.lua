@@ -36,13 +36,14 @@ local bus_states = {
 local bus = {
     x = 0,
     y = 0,
-    x_taget = 0,
+    x_target = 0,
     y_target = 0,
     width = 24,
     height = 12,
-    scaling = 2,
+    scaling = 3,
     facing_left = true,
-    bus_state = bus_states.idleing
+    bus_state = bus_states.idleing,
+    distance_to_target = 0
 }
 
 
@@ -85,11 +86,13 @@ function love.load()
     imagePath.watermelon_cursor = "src/sprites/cursor_watermelon.png"
     imagePath.bus_idle_sheet = "src/sprites/bus_idle_sheet.png"
     imagePath.bus_driving_sheet = "src/sprites/bus_driving_sheet.png"
+    imagePath.bus_braking = "src/sprites/bus_breaking.png"
     
     -- create the images
     images.watermelon_cursor = love.graphics.newImage(imagePath.watermelon_cursor)
     images.bus_idle_sheet = love.graphics.newImage(imagePath.bus_idle_sheet)
     images.bus_driving_sheet = love.graphics.newImage(imagePath.bus_driving_sheet)
+    images.bus_breaking = love.graphics.newImage(imagePath.bus_braking)
     
     local bus_idle_grid = anim8.newGrid(24, 12, images.bus_idle_sheet:getWidth(), images.bus_idle_sheet:getHeight())
     local bus_drinving_grid = anim8.newGrid(24, 12, images.bus_driving_sheet:getWidth(), images.bus_driving_sheet:getHeight())
@@ -97,7 +100,7 @@ function love.load()
     animations.bus_idle_animation = anim8.newAnimation(bus_idle_grid('1-3',1), 0.1)
     animations.bus_driving_animation = anim8.newAnimation(bus_drinving_grid('1-2', 1), 0.1)
 
-    move_bus = tween.new(2, bus, {x=bus.x_taget,y=bus.y_target}, tween.easing.inOutSine) -- how do i check that this is finished?
+    move_bus = tween.new(2, bus, {x=bus.x_target,y=bus.y_target}, tween.easing.inOutSine) -- how do i check that this is finished?
 
 
     
@@ -115,10 +118,20 @@ function love.update(dt)
         mouse.height = mouse.y_current - mouse.y_start
 	end	
 
+
+    bus.distance_to_target = calculate_distance_between_two_targets(bus.x, bus.y, bus.x_target, bus.y_target)
+
     local move_bus_complete = move_bus:update(dt)
+    
+    if bus.distance_to_target < 20 and bus.distance_to_target > 1 then
+        bus.bus_state = bus_states.braking
+        print(bus.distance_to_target)
+        print("we are breaking")
+    end
     if move_bus_complete then
         bus.bus_state = bus_states.idleing
     end
+
 end
 
 
@@ -137,29 +150,28 @@ function love.draw()
         -- love.graphics.rectangle("fill", maid64.mouse.getX(),  maid64.mouse.getY(), 1,1)
     end
     
-    love.graphics.draw(images.watermelon_cursor,maid64.mouse.getX(), 
-    maid64.mouse.getY())
+    love.graphics.draw(images.watermelon_cursor,maid64.mouse.getX(), maid64.mouse.getY())
     
     love.graphics.rectangle("line", mouse.x_start, mouse.y_start, mouse.width, mouse.height)
 
     -- draw right facing bus
     if bus.facing_left then
         if bus.bus_state == bus_states.idleing then
-            animations.bus_idle_animation:draw(images.bus_idle_sheet, bus.x, bus.y, 0, -2, 2, bus.width, 0)
+            animations.bus_idle_animation:draw(images.bus_idle_sheet, bus.x, bus.y, 0, -bus.scaling, bus.scaling, bus.width, 0)
         elseif bus.bus_state == bus_states.driving then
-            animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, -2, 2, bus.width, 0)
+            animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, -bus.scaling, bus.scaling, bus.width, 0)
         elseif bus.bus_state == bus_states.braking then
-            animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, -2, 2, bus.width, 0) -- this needs to be switched to braking...
+            love.graphics.draw(images.bus_breaking, bus.x, bus.y, 0, -bus.scaling, bus.scaling, bus.width, 0)
             
         end
     else
         
         if bus.bus_state == bus_states.idleing then
-            animations.bus_idle_animation:draw(images.bus_idle_sheet, bus.x, bus.y, 0, 2, 2)
+            animations.bus_idle_animation:draw(images.bus_idle_sheet, bus.x, bus.y, 0, bus.scaling, bus.scaling)
         elseif bus.bus_state == bus_states.driving then
-            animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, 2, 2)
+            animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, bus.scaling, bus.scaling)
         elseif bus.bus_state == bus_states.braking then
-            animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, 2, 2) -- this needs to be switched to braking...
+            love.graphics.draw(images.bus_breaking, bus.x, bus.y, 0, bus.scaling, bus.scaling)
             
         end
         -- animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, 2, 2)
@@ -210,9 +222,9 @@ function love.mousepressed(x, y, button, istouch)
     end
 
     if button == 2 then
-        bus.x_taget = maid64.mouse.getX()
-        bus.y_taget = maid64.mouse.getY()
-        move_bus = tween.new(2, bus, {x=maid64.mouse.getX(), y=maid64.mouse.getY()}, tween.easing.inOutSine)
+        bus.x_target = mouse_x
+        bus.y_target = mouse_y
+        move_bus = tween.new(2, bus, {x=bus.x_target, y=bus.y_target}, tween.easing.inOutSine)
         bus.bus_state = bus_states.driving
 
         if mouse_x < bus.x then
@@ -268,4 +280,10 @@ function deep_copy(t)
         end
     end
     return copy
+end
+
+
+-- Function to calculate the distance to the target
+function calculate_distance_between_two_targets(x1, y1, x2, y2)
+    return math.sqrt((x2 - x1)^2 + (y2 - y1)^2)
 end
