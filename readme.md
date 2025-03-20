@@ -1,7 +1,10 @@
 # BUSMARN
-LÖVE JAM 2025
+LÖVE JAM 2025  
 
-![](busmarn_love2d_2025_jam.gif)
+1st session (3½ hours):
+![](busmarn_love2d_2025_jam.gif)  
+2nd session (3hrs21min)  
+![](busmarn_7_hours_in_resized.gif)
 
 
 Atributions:  
