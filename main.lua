@@ -27,6 +27,8 @@ local images = {}
 
 local animations = {}
 
+local sfx = {}
+
 local bus_states = {
     driving = 'driving',
     braking = 'braking',
@@ -101,8 +103,16 @@ function love.load()
     animations.bus_driving_animation = anim8.newAnimation(bus_drinving_grid('1-2', 1), 0.1)
 
     move_bus = tween.new(2, bus, {x=bus.x_target,y=bus.y_target}, tween.easing.inOutSine) -- how do i check that this is finished?
+    
 
+    -- LOAD SOUNDS
+    sfx.driving = love.audio.newSource("src/sfx/sfx_drive_short.wav", 'static')
+    sfx.driving:setLooping(true)
+    sfx.idle = love.audio.newSource("src/sfx/sfx_bus_idle.wav", 'static')
+    sfx.idle:setLooping(true)
+    sfx.brake = love.audio.newSource("src/sfx/sfx_braking_car_short.wav", 'static')
 
+    sfx.idle:play()
     
 end
 
@@ -124,12 +134,20 @@ function love.update(dt)
     local move_bus_complete = move_bus:update(dt)
     
     if bus.distance_to_target < 20 and bus.distance_to_target > 1 then
+        if sfx.driving:isPlaying() then
+            sfx.driving:stop()
+        end
+        sfx.brake:play()
         bus.bus_state = bus_states.braking
         print(bus.distance_to_target)
         print("we are breaking")
     end
     if move_bus_complete then
         bus.bus_state = bus_states.idleing
+        if sfx.driving:isPlaying() then
+            sfx.driving:stop()
+        end
+        sfx.idle:play()
     end
 
 end
@@ -222,6 +240,10 @@ function love.mousepressed(x, y, button, istouch)
     end
 
     if button == 2 then
+        if sfx.idle:isPlaying() then
+            sfx.idle:stop()
+        end
+        sfx.driving:play()
         bus.x_target = mouse_x
         bus.y_target = mouse_y
         move_bus = tween.new(2, bus, {x=bus.x_target, y=bus.y_target}, tween.easing.inOutSine)
