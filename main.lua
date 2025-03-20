@@ -139,8 +139,22 @@ end
 
 function love.update(dt)
 
-    for key, value in pairs(passengers) do
-        value.animation:update(dt)
+    for key, passenger in pairs(passengers) do
+        passenger.animation:update(dt)
+        local move_completed = passenger.move:update(dt)
+        if move_completed then
+            local x_target = passenger.x + math.random(-50,50)
+            local y_target = passenger.y + math.random(-50,50)
+            if x_target > settings.screenHeight or x_target < 5 then
+                x_target = passenger.x + math.random(-50,50)
+            end
+            if y_target > settings.sceenWidth or y_target < 5 then
+                y_target = passenger.x + math.random(-50,50)
+            end
+            local time_to_target = math.random(2,10)
+            -- create tween to move passenger
+            passenger.move = tween.new(time_to_target, passenger, {x=x_target, y=y_target}, tween.easing.inOutSine)
+        end
     end
     mouse_x = maid64.mouse.getX()
     mouse_y = maid64.mouse.getY()
@@ -195,10 +209,9 @@ function love.draw()
         -- love.graphics.rectangle("fill", maid64.mouse.getX(),  maid64.mouse.getY(), 1,1)
     end
     
-    love.graphics.draw(images.watermelon_cursor,maid64.mouse.getX(), maid64.mouse.getY())
     
     love.graphics.rectangle("line", mouse.x_start, mouse.y_start, mouse.width, mouse.height)
-
+    
     -- draw right facing bus
     if bus.facing_left then
         if bus.bus_state == bus_states.idleing then
@@ -226,6 +239,7 @@ function love.draw()
     -- draw left facing bus, offset with the width of the original bus image
     -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, -2, 2, 24, 0)
     
+    love.graphics.draw(images.watermelon_cursor,maid64.mouse.getX(), maid64.mouse.getY())
     maid64.finish()--finishes the maid64 process
 end
 
@@ -338,21 +352,22 @@ function calculate_distance_between_two_targets(x1, y1, x2, y2)
 end
 
 function add_pasenger()
-    local animationPicker = 1
-    local animationPicker = math.random(1,4);
+    
+    local animation_picker = math.random(1,4);
+    local time_to_target = math.random(2,10)
     
     local animation
     local image
-    if animationPicker == 1 then
+    if animation_picker == 1 then
         animation = anim8.newAnimation(grids.chicken_grid('1-3', 1), 0.15)
         image = images.chicken
-    elseif animationPicker == 2 then
+    elseif animation_picker == 2 then
         animation = anim8.newAnimation(grids.frog_grid('1-2', 1), 0.1)
         image = images.frog
-    elseif  animationPicker == 3 then
+    elseif  animation_picker == 3 then
         animation = anim8.newAnimation(grids.rabbit_grid('1-2', 1), 0.1)
         image = images.rabbit
-    elseif animationPicker == 4 then
+    elseif animation_picker == 4 then
         animation = anim8.newAnimation(grids.smiley_grid('1-3', 1), 0.1)
         image = images.smiley
     end
@@ -360,8 +375,14 @@ function add_pasenger()
         x = math.random(5,620); math.random(5,620); math.random(5,620),
         y = math.random(5,350); math.random(5,350); math.random(5,350),
         animation = animation,
-        image = image
-
+        image = image,
+        
     }
+    local x_target = passenger.x + math.random(-50,50)
+    local y_target = passenger.y + math.random(-50,50)
+
+    -- create tween to move passenger
+    passenger.move = tween.new(time_to_target, passenger, {x=x_target, y=y_target}, tween.easing.inOutSine)
+
     table.insert(passengers, passenger)
 end
