@@ -25,6 +25,8 @@ local imagePath = {}
 
 local images = {}
 
+local grids = {}
+
 local animations = {}
 
 local sfx = {}
@@ -42,7 +44,7 @@ local bus = {
     y_target = 0,
     width = 24,
     height = 12,
-    scaling = 3,
+    scaling = 2,
     facing_left = true,
     bus_state = bus_states.idleing,
     distance_to_target = 0
@@ -57,6 +59,8 @@ local mouse = {
     width = 0, -- used to store the value of the width of the current ongoing selection
     height = 0 -- used to store the value of the height of the current on going selection
 }
+
+local passengers = {}
 
 local mouse_last_selection = mouse
 
@@ -90,20 +94,36 @@ function love.load()
     imagePath.bus_idle_sheet = "src/sprites/bus_idle_sheet.png"
     imagePath.bus_driving_sheet = "src/sprites/bus_driving_sheet.png"
     imagePath.bus_braking = "src/sprites/bus_breaking.png"
+    imagePath.chicken = "src/sprites/figures/ckn_little_marn_sheet.png"
+    imagePath.frog = "src/sprites/figures/frog_girl_marn_sheet.png"
+    imagePath.rabbit = "src/sprites/figures/roger_rabbit_marn_sheet.png"
+    imagePath.smiley = "src/sprites/figures/smiley_marn_sheet.png"
     
     -- create the images
     images.watermelon_cursor = love.graphics.newImage(imagePath.watermelon_cursor)
     images.bus_idle_sheet = love.graphics.newImage(imagePath.bus_idle_sheet)
     images.bus_driving_sheet = love.graphics.newImage(imagePath.bus_driving_sheet)
     images.bus_breaking = love.graphics.newImage(imagePath.bus_braking)
+    images.chicken = love.graphics.newImage(imagePath.chicken)
+    images.frog = love.graphics.newImage(imagePath.frog)
+    images.rabbit = love.graphics.newImage(imagePath.rabbit)
+    images.smiley = love.graphics.newImage(imagePath.smiley)
     
-    local bus_idle_grid = anim8.newGrid(24, 12, images.bus_idle_sheet:getWidth(), images.bus_idle_sheet:getHeight())
-    local bus_drinving_grid = anim8.newGrid(24, 12, images.bus_driving_sheet:getWidth(), images.bus_driving_sheet:getHeight())
+    grids.bus_idle_grid = anim8.newGrid(24, 12, images.bus_idle_sheet:getWidth(), images.bus_idle_sheet:getHeight())
+    grids.bus_drinving_grid = anim8.newGrid(24, 12, images.bus_driving_sheet:getWidth(), images.bus_driving_sheet:getHeight())
+    grids.chicken_grid = anim8.newGrid(16, 16, images.chicken:getWidth(), images.chicken:getHeight())
+    grids.frog_grid = anim8.newGrid(16, 16, images.frog:getWidth(), images.frog:getHeight())
+    grids.rabbit_grid = anim8.newGrid(16, 16, images.rabbit:getWidth(), images.rabbit:getHeight())
+    grids.smiley_grid = anim8.newGrid(16, 16, images.smiley:getWidth(), images.smiley:getHeight())
 
-    animations.bus_idle_animation = anim8.newAnimation(bus_idle_grid('1-3',1), 0.1)
-    animations.bus_driving_animation = anim8.newAnimation(bus_drinving_grid('1-2', 1), 0.1)
+    animations.bus_idle_animation = anim8.newAnimation(grids.bus_idle_grid('1-3',1), 0.1)
+    animations.bus_driving_animation = anim8.newAnimation(grids.bus_drinving_grid('1-2', 1), 0.1)
+    animations.chicken_animation = anim8.newAnimation(grids.chicken_grid('1-3', 1), 0.15)
+    animations.frog_animation = anim8.newAnimation(grids.frog_grid('1-2', 1), 0.1)
+    animations.rabbit_animation = anim8.newAnimation(grids.rabbit_grid('1-2', 1), 0.1)
+    animations.smiley_animation = anim8.newAnimation(grids.smiley_grid('1-3', 1), 0.1)
 
-    move_bus = tween.new(2, bus, {x=bus.x_target,y=bus.y_target}, tween.easing.inOutSine) -- how do i check that this is finished?
+    move_bus = tween.new(2, bus, {x=bus.x_target,y=bus.y_target}, tween.easing.linear) -- how do i check that this is finished?
     
 
     -- LOAD SOUNDS
@@ -118,6 +138,10 @@ function love.load()
 end
 
 function love.update(dt)
+
+    for key, value in pairs(passengers) do
+        value.animation:update(dt)
+    end
     mouse_x = maid64.mouse.getX()
     mouse_y = maid64.mouse.getY()
     animations.bus_idle_animation:update(dt)
@@ -160,7 +184,9 @@ function love.draw()
     maid64.start()--starts the maid64 process
    
     love.graphics.setLineStyle('rough')
-   
+    for key, value in pairs(passengers) do
+        value.animation:draw(images.chicken, value.x, value.y)
+    end
     if developerMode == true then
     
         love.graphics.print(maid64.mouse.getX() ..  "," ..  maid64.mouse.getY(), 1,1)
@@ -199,7 +225,6 @@ function love.draw()
     -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, 2, 2)
     -- draw left facing bus, offset with the width of the original bus image
     -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, -2, 2, 24, 0)
-
     
     maid64.finish()--finishes the maid64 process
 end
@@ -212,7 +237,8 @@ end
 
 function love.keypressed(key)
     if key == 'e' then
-        print("e")
+        print("adding passenger")
+        add_pasenger()
     end
 
     if key == "escape" then
@@ -309,4 +335,13 @@ end
 -- Function to calculate the distance to the target
 function calculate_distance_between_two_targets(x1, y1, x2, y2)
     return math.sqrt((x2 - x1)^2 + (y2 - y1)^2)
+end
+
+function add_pasenger()
+    local passenger = {
+        x = math.random(1,640); math.random(1,640); math.random(1,640),
+        y = math.random(1,360); math.random(1,360); math.random(1,360),
+        animation = anim8.newAnimation(grids.chicken_grid('1-3', 1), 0.15)
+    }
+    table.insert(passengers, passenger)
 end
