@@ -69,7 +69,8 @@ function love.load()
     math.randomseed( os.time() )
     love.mouse.setVisible(false)
     
-    love.graphics.setBackgroundColor( 0/255, 135/255, 81/255)
+    -- love.graphics.setBackgroundColor( 0/255, 135/255, 81/255) -- green
+    love.graphics.setBackgroundColor( 227/255, 160/255, 102/255)
     love.window.setTitle( 'BUSMARN' )
     --optional settings for window
     love.window.setMode(settings.sceenWidth*settings.scaleMuliplier, settings.screenHeight*settings.scaleMuliplier, {resizable=true, vsync=false, minwidth=200, minheight=200})
