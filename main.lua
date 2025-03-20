@@ -357,8 +357,8 @@ function add_pasenger()
         image = images.smiley
     end
     local passenger = {
-        x = math.random(1,640); math.random(1,640); math.random(1,640),
-        y = math.random(1,360); math.random(1,360); math.random(1,360),
+        x = math.random(5,620); math.random(5,620); math.random(5,620),
+        y = math.random(5,350); math.random(5,350); math.random(5,350),
         animation = animation,
         image = image
 
