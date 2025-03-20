@@ -185,7 +185,7 @@ function love.draw()
    
     love.graphics.setLineStyle('rough')
     for key, value in pairs(passengers) do
-        value.animation:draw(images.chicken, value.x, value.y)
+        value.animation:draw(value.image, value.x, value.y)
     end
     if developerMode == true then
     
@@ -338,10 +338,30 @@ function calculate_distance_between_two_targets(x1, y1, x2, y2)
 end
 
 function add_pasenger()
+    local animationPicker = 1
+    local animationPicker = math.random(1,4);
+    
+    local animation
+    local image
+    if animationPicker == 1 then
+        animation = anim8.newAnimation(grids.chicken_grid('1-3', 1), 0.15)
+        image = images.chicken
+    elseif animationPicker == 2 then
+        animation = anim8.newAnimation(grids.frog_grid('1-2', 1), 0.1)
+        image = images.frog
+    elseif  animationPicker == 3 then
+        animation = anim8.newAnimation(grids.rabbit_grid('1-2', 1), 0.1)
+        image = images.rabbit
+    elseif animationPicker == 4 then
+        animation = anim8.newAnimation(grids.smiley_grid('1-3', 1), 0.1)
+        image = images.smiley
+    end
     local passenger = {
         x = math.random(1,640); math.random(1,640); math.random(1,640),
         y = math.random(1,360); math.random(1,360); math.random(1,360),
-        animation = anim8.newAnimation(grids.chicken_grid('1-3', 1), 0.15)
+        animation = animation,
+        image = image
+
     }
     table.insert(passengers, passenger)
 end
