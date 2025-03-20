@@ -166,6 +166,7 @@ function love.update(dt)
             print("-collision detected")
             passenger.collision = true
             bus.collision = true
+            table.remove(passengers, key)
         else 
             passenger.collision = false
             bus.collision = false
@@ -260,6 +261,7 @@ function love.draw()
         -- animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, 2, 2)
         if draw_hit_boxes then
             love.graphics.rectangle('line', bus.x, bus.y, bus.width*bus.scaling, bus.height*bus.scaling, 0, bus.scaling)
+
         end
     end
     -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, 2, 2)
@@ -283,8 +285,13 @@ function love.keypressed(key)
     end
 
     if key == "escape" then
-      print("escape")
-
+        print("escape")
+        if draw_hit_boxes then
+            draw_hit_boxes = false
+        else
+            draw_hit_boxes = true
+        end
+    
     end
 
     -- toggle fullscreen
