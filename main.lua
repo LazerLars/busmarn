@@ -48,7 +48,8 @@ local bus = {
     scaling = 2,
     facing_left = true,
     bus_state = bus_states.idleing,
-    distance_to_target = 0
+    distance_to_target = 0,
+    collision = false
 }
 
 
@@ -157,6 +158,19 @@ function love.update(dt)
             passenger.move = tween.new(time_to_target, passenger, {x=x_target, y=y_target}, tween.easing.inOutSine)
         end
     end
+
+    -- check collision
+    for key, passenger in pairs(passengers) do
+        local collision = collision_check(passenger, bus)
+        if collision then
+            print("-collision detected")
+            passenger.collision = true
+            bus.collision = true
+        else 
+            passenger.collision = false
+            bus.collision = false
+        end
+    end
     mouse_x = maid64.mouse.getX()
     mouse_y = maid64.mouse.getY()
     animations.bus_idle_animation:update(dt)
@@ -199,10 +213,14 @@ function love.draw()
     maid64.start()--starts the maid64 process
    
     love.graphics.setLineStyle('rough')
-    for key, value in pairs(passengers) do
-        value.animation:draw(value.image, value.x, value.y)
+    for key, passenger in pairs(passengers) do
+        passenger.animation:draw(passenger.image, passenger.x, passenger.y)
         if draw_hit_boxes then
-            love.graphics.rectangle('line', value.x, value.y, value.width, value.height)
+            if passenger.collision then
+                love.graphics.setColor(172/255, 50/255, 50/255) 
+            end
+            love.graphics.rectangle('line', passenger.x, passenger.y, passenger.width, passenger.height)
+            love.graphics.setColor(1,1,1) 
         end
     end
     if developerMode == true then
@@ -386,7 +404,9 @@ function add_pasenger()
         animation = animation,
         image = image,
         width = 16,
-        height = 16
+        height = 16,
+        collision = false,
+        scaling = 1
         
     }
     local x_target = passenger.x + math.random(-50,50)
@@ -396,4 +416,27 @@ function add_pasenger()
     passenger.move = tween.new(time_to_target, passenger, {x=x_target, y=y_target}, tween.easing.inOutSine)
 
     table.insert(passengers, passenger)
+end
+
+function collision_check(object_a, object_b)
+
+    -- Adjusted edges of object a
+    local a_left = object_a.x
+    local a_right = object_a.x + object_a.width * object_a.scaling
+    local a_top = object_a.y
+    local a_bottom = object_a.y + object_a.height * object_a.scaling
+
+    -- Adjusted edges of object b
+    local b_left = object_b.x
+    local b_right = object_b.x + object_b.width * object_b.scaling
+    local b_top = object_b.y
+    local b_bottom = object_b.y + object_b.height * object_b.scaling
+
+    -- Check if the rectangles overlap
+    local isColliding = a_right > b_left and
+                        a_left < b_right and
+                        a_bottom > b_top and
+                        a_top < b_bottom
+
+    return isColliding
 end
