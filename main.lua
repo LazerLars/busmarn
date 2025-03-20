@@ -20,6 +20,7 @@ local settings = {
 }
 
 developerMode = true
+draw_hit_boxes = true
 
 local imagePath = {}
 
@@ -200,6 +201,9 @@ function love.draw()
     love.graphics.setLineStyle('rough')
     for key, value in pairs(passengers) do
         value.animation:draw(value.image, value.x, value.y)
+        if draw_hit_boxes then
+            love.graphics.rectangle('line', value.x, value.y, value.width, value.height)
+        end
     end
     if developerMode == true then
     
@@ -222,6 +226,9 @@ function love.draw()
             love.graphics.draw(images.bus_breaking, bus.x, bus.y, 0, -bus.scaling, bus.scaling, bus.width, 0)
             
         end
+        if draw_hit_boxes then
+            love.graphics.rectangle('line', bus.x, bus.y, bus.width*bus.scaling, bus.height*bus.scaling, 0, -bus.scaling)
+        end
     else
         
         if bus.bus_state == bus_states.idleing then
@@ -233,7 +240,9 @@ function love.draw()
             
         end
         -- animations.bus_driving_animation:draw(images.bus_driving_sheet, bus.x, bus.y, 0, 2, 2)
-        
+        if draw_hit_boxes then
+            love.graphics.rectangle('line', bus.x, bus.y, bus.width*bus.scaling, bus.height*bus.scaling, 0, bus.scaling)
+        end
     end
     -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, 2, 2)
     -- draw left facing bus, offset with the width of the original bus image
@@ -376,6 +385,8 @@ function add_pasenger()
         y = math.random(5,350); math.random(5,350); math.random(5,350),
         animation = animation,
         image = image,
+        width = 16,
+        height = 16
         
     }
     local x_target = passenger.x + math.random(-50,50)
