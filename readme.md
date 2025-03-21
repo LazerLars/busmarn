@@ -4,7 +4,8 @@ LÖVE JAM 2025
 1st session (3½ hours):
 ![](busmarn_love2d_2025_jam.gif)  
 2nd session (3hrs21min)  
-![](busmarn_7_hours_in_resized.gif)
+![](busmarn_7_hours_in_resized.gif)  
+3nd session (38 min)  
 
 
 Atributions:  
