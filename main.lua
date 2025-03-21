@@ -22,7 +22,7 @@ local settings = {
 developerMode = true
 draw_hit_boxes = true
 
-local imagePath = {}
+local image_path = {}
 
 local images = {}
 
@@ -31,6 +31,17 @@ local grids = {}
 local animations = {}
 
 local sfx = {}
+
+local passengers = {}
+
+local wheel_marks = {}
+
+local spawn_Settings = {
+    timer = 0,
+    spawn_now = false,
+    spawn_interval = 1,
+    spawn_counter = 0
+}
 
 local bus_states = {
     driving = 'driving',
@@ -52,6 +63,10 @@ local bus = {
     collision = false
 }
 
+local stats = {
+    passenger_count = 0
+}
+
 
 local mouse = {
     x_start = 0,
@@ -62,7 +77,7 @@ local mouse = {
     height = 0 -- used to store the value of the height of the current on going selection
 }
 
-local passengers = {}
+local timer = 0
 
 local mouse_last_selection = mouse
 
@@ -92,24 +107,24 @@ function love.load()
     love.graphics.setFont(font)
 
     -- path to images
-    imagePath.watermelon_cursor = "src/sprites/cursor_watermelon.png"
-    imagePath.bus_idle_sheet = "src/sprites/bus_idle_sheet.png"
-    imagePath.bus_driving_sheet = "src/sprites/bus_driving_sheet.png"
-    imagePath.bus_braking = "src/sprites/bus_breaking.png"
-    imagePath.chicken = "src/sprites/figures/ckn_little_marn_sheet.png"
-    imagePath.frog = "src/sprites/figures/frog_girl_marn_sheet.png"
-    imagePath.rabbit = "src/sprites/figures/roger_rabbit_marn_sheet.png"
-    imagePath.smiley = "src/sprites/figures/smiley_marn_sheet.png"
+    image_path.watermelon_cursor = "src/sprites/cursor_watermelon.png"
+    image_path.bus_idle_sheet = "src/sprites/bus_idle_sheet.png"
+    image_path.bus_driving_sheet = "src/sprites/bus_driving_sheet.png"
+    image_path.bus_braking = "src/sprites/bus_breaking.png"
+    image_path.chicken = "src/sprites/figures/ckn_little_marn_sheet.png"
+    image_path.frog = "src/sprites/figures/frog_girl_marn_sheet.png"
+    image_path.rabbit = "src/sprites/figures/roger_rabbit_marn_sheet.png"
+    image_path.smiley = "src/sprites/figures/smiley_marn_sheet.png"
     
     -- create the images
-    images.watermelon_cursor = love.graphics.newImage(imagePath.watermelon_cursor)
-    images.bus_idle_sheet = love.graphics.newImage(imagePath.bus_idle_sheet)
-    images.bus_driving_sheet = love.graphics.newImage(imagePath.bus_driving_sheet)
-    images.bus_breaking = love.graphics.newImage(imagePath.bus_braking)
-    images.chicken = love.graphics.newImage(imagePath.chicken)
-    images.frog = love.graphics.newImage(imagePath.frog)
-    images.rabbit = love.graphics.newImage(imagePath.rabbit)
-    images.smiley = love.graphics.newImage(imagePath.smiley)
+    images.watermelon_cursor = love.graphics.newImage(image_path.watermelon_cursor)
+    images.bus_idle_sheet = love.graphics.newImage(image_path.bus_idle_sheet)
+    images.bus_driving_sheet = love.graphics.newImage(image_path.bus_driving_sheet)
+    images.bus_breaking = love.graphics.newImage(image_path.bus_braking)
+    images.chicken = love.graphics.newImage(image_path.chicken)
+    images.frog = love.graphics.newImage(image_path.frog)
+    images.rabbit = love.graphics.newImage(image_path.rabbit)
+    images.smiley = love.graphics.newImage(image_path.smiley)
     
     grids.bus_idle_grid = anim8.newGrid(24, 12, images.bus_idle_sheet:getWidth(), images.bus_idle_sheet:getHeight())
     grids.bus_drinving_grid = anim8.newGrid(24, 12, images.bus_driving_sheet:getWidth(), images.bus_driving_sheet:getHeight())
@@ -140,7 +155,13 @@ function love.load()
 end
 
 function love.update(dt)
-
+    timer = timer + dt
+    spawn_Settings.timer = spawn_Settings.timer  + dt
+    if spawn_Settings.timer >= spawn_Settings.spawn_interval then
+        add_pasenger()
+        spawn_Settings.timer = 0
+        spawn_Settings.spawn_counter = spawn_Settings.spawn_counter + 1
+    end
     for key, passenger in pairs(passengers) do
         passenger.animation:update(dt)
         local move_completed = passenger.move:update(dt)
@@ -164,6 +185,7 @@ function love.update(dt)
         local collision = collision_check(passenger, bus)
         if collision then
             print("-collision detected")
+            stats.passenger_count = stats.passenger_count + 1
             passenger.collision = true
             bus.collision = true
             table.remove(passengers, key)
@@ -188,14 +210,12 @@ function love.update(dt)
 
     local move_bus_complete = move_bus:update(dt)
     
-    if bus.distance_to_target < 20 and bus.distance_to_target > 1 then
+    if bus.distance_to_target < 50 and bus.distance_to_target > 1 then
         if sfx.driving:isPlaying() then
             sfx.driving:stop()
         end
         sfx.brake:play()
         bus.bus_state = bus_states.braking
-        print(bus.distance_to_target)
-        print("we are breaking")
     end
     if move_bus_complete then
         bus.bus_state = bus_states.idleing
@@ -413,7 +433,7 @@ function add_pasenger()
         width = 16,
         height = 16,
         collision = false,
-        scaling = 1
+        scaling = 1,
         
     }
     local x_target = passenger.x + math.random(-50,50)
@@ -447,3 +467,8 @@ function collision_check(object_a, object_b)
 
     return isColliding
 end
+
+function add_wheel_marks()
+
+end
+
