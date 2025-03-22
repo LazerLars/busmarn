@@ -34,6 +34,8 @@ local sfx = {}
 
 local passengers = {}
 
+local effects = {}
+
 local wheel_marks = {}
 
 local spawn_Settings = {
@@ -115,6 +117,11 @@ function love.load()
     image_path.frog = "src/sprites/figures/frog_girl_marn_sheet.png"
     image_path.rabbit = "src/sprites/figures/roger_rabbit_marn_sheet.png"
     image_path.smiley = "src/sprites/figures/smiley_marn_sheet.png"
+    image_path.blood_00 = "src/sprites/effects/blood_00.png"
+    image_path.blood_01 = "src/sprites/effects/blood_01.png"
+    image_path.blood_02 = "src/sprites/effects/blood_02.png"
+    image_path.blood_03 = "src/sprites/effects/blood_03.png"
+    image_path.blood_04 = "src/sprites/effects/blood_04.png"
     
     -- create the images
     images.watermelon_cursor = love.graphics.newImage(image_path.watermelon_cursor)
@@ -125,6 +132,12 @@ function love.load()
     images.frog = love.graphics.newImage(image_path.frog)
     images.rabbit = love.graphics.newImage(image_path.rabbit)
     images.smiley = love.graphics.newImage(image_path.smiley)
+    images.blood_00 = love.graphics.newImage(image_path.blood_00)
+    images.blood_01 = love.graphics.newImage(image_path.blood_01)
+    images.blood_02 = love.graphics.newImage(image_path.blood_02)
+    images.blood_03 = love.graphics.newImage(image_path.blood_03)
+    images.blood_04 = love.graphics.newImage(image_path.blood_04)
+
     
     grids.bus_idle_grid = anim8.newGrid(24, 12, images.bus_idle_sheet:getWidth(), images.bus_idle_sheet:getHeight())
     grids.bus_drinving_grid = anim8.newGrid(24, 12, images.bus_driving_sheet:getWidth(), images.bus_driving_sheet:getHeight())
@@ -188,6 +201,7 @@ function love.update(dt)
             stats.passenger_count = stats.passenger_count + 1
             passenger.collision = true
             bus.collision = true
+            add_blood_splat(passenger)
             table.remove(passengers, key)
         else 
             passenger.collision = false
@@ -234,6 +248,11 @@ function love.draw()
     maid64.start()--starts the maid64 process
    
     love.graphics.setLineStyle('rough')
+    
+    for key, blood_effect in pairs(effects) do
+        love.graphics.draw(blood_effect.image, blood_effect.x, blood_effect.y, 0, 2, 2)
+    end
+    
     for key, passenger in pairs(passengers) do
         passenger.animation:draw(passenger.image, passenger.x, passenger.y)
         if draw_hit_boxes then
@@ -244,6 +263,8 @@ function love.draw()
             love.graphics.setColor(1,1,1) 
         end
     end
+
+    
     if developerMode == true then
     
         love.graphics.print(maid64.mouse.getX() ..  "," ..  maid64.mouse.getY(), 1,1)
@@ -289,6 +310,7 @@ function love.draw()
     -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, -2, 2, 24, 0)
     
     love.graphics.draw(images.watermelon_cursor,maid64.mouse.getX(), maid64.mouse.getY())
+
     maid64.finish()--finishes the maid64 process
 end
 
@@ -443,6 +465,27 @@ function add_pasenger()
     passenger.move = tween.new(time_to_target, passenger, {x=x_target, y=y_target}, tween.easing.inOutSine)
 
     table.insert(passengers, passenger)
+end
+
+function add_blood_splat(passenger)
+    local blood_splat_chooser = math.random(1,5)
+
+    local blood_sfx = {}
+    blood_sfx.x = passenger.x
+    blood_sfx.y = passenger.y
+    if blood_splat_chooser == 1 then
+        blood_sfx.image = images.blood_00
+    elseif blood_splat_chooser == 2  then
+        blood_sfx.image = images.blood_01
+    elseif blood_splat_chooser == 3  then
+        blood_sfx.image = images.blood_02
+    elseif blood_splat_chooser == 4  then
+        blood_sfx.image = images.blood_03
+    elseif blood_splat_chooser == 5  then
+        blood_sfx.image = images.blood_04
+    end
+
+    table.insert(effects, blood_sfx)
 end
 
 function collision_check(object_a, object_b)
