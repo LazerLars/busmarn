@@ -226,8 +226,13 @@ function love.update(dt)
         end
     end
 
-    for key, buttons in pairs(buttons) do
-        
+    for key, button in pairs(buttons) do
+        local collision = collision_check(button, bus)
+        if collision then
+            button.collision = true
+        else
+            button.collision = false
+        end
         
     end
     mouse_x = maid64.mouse.getX()
@@ -272,10 +277,10 @@ function love.draw()
     love.graphics.setLineStyle('rough')
 
     for key, button in pairs(buttons) do
-        if button.collision then
-            love.graphics.draw(button.up_image, button.x, button.y, 0, button.scale, button.scale)
+        if button.collision == false then
+            love.graphics.draw(button.up_image, button.x, button.y, 0, button.scaling, button.scaling)
         else
-            love.graphics.draw(button.down_image, button.x, button.y, 0, button.scale, button.scale)
+            love.graphics.draw(button.down_image, button.x, button.y, 0, button.scaling, button.scaling)
         end
     end
     
@@ -568,7 +573,7 @@ function timer_buttons_init()
             y = 0,
             width = 20,
             height = 12,
-            scale = 2,
+            scaling = 2,
             collision = false
         }
            
@@ -580,7 +585,7 @@ function timer_buttons_init()
         y = 0,
         width = 20,
         height = 12,
-        scale = 2,
+        scaling = 2,
         collision = false
     }
     table.insert(buttons, button)
