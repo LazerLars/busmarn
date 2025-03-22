@@ -24,6 +24,8 @@ draw_hit_boxes = false
 
 local pause_game = false
 
+local play_music = true
+
 local image_path = {}
 
 local images = {}
@@ -187,12 +189,26 @@ function love.load()
     sfx.driving:setLooping(true)
     sfx.idle = love.audio.newSource("src/sfx/sfx_bus_idle.wav", 'static')
     sfx.idle:setLooping(true)
+    sfx.idle:setVolume(0.5)
     sfx.brake = love.audio.newSource("src/sfx/sfx_braking_car_short.wav", 'static')
     sfx.blood_00 = love.audio.newSource("src/sfx/splatter/sfx_splat_00.wav", "static")
     sfx.blood_01 = love.audio.newSource("src/sfx/splatter/sfx_splat_01.wav", "static")
     sfx.blood_02 = love.audio.newSource("src/sfx/splatter/sfx_splat_02.wav", "static")
     sfx.blood_03 = love.audio.newSource("src/sfx/splatter/sfx_splat_03.wav", "static")
+    sfx.music_loop_00 = love.audio.newSource("src/sfx/music/music_loop_00.wav", "static")
+    sfx.music_loop_00:setLooping(true)
+    sfx.music_loop_00:setVolume(0.3)
+    sfx.music_loop_01 = love.audio.newSource("src/sfx/music/music_loop_01.wav", "static")
+    sfx.music_loop_01:setLooping(true)
+    sfx.music_loop_01:setVolume(0.3)
 
+
+    local choose_music_loop = math.random(1,2)
+    if choose_music_loop == 1 then
+        sfx.music_loop_00:play()
+    else
+        sfx.music_loop_01:play()
+    end
     sfx.idle:play()
     -- set initial position of the buttons
     timer_buttons_init()

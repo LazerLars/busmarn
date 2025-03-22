@@ -25,3 +25,8 @@ Idle sfx: rpmaisBus23 by rpmais -- https://freesound.org/s/776296/ -- License: C
 Driving sfx:  Car Accelerating Slowly and Decelerating 1 (Engine and Exhaust Mix) by EvanBoyerman -- https://freesound.org/s/755996/ -- License: Attribution 4.0
   
 Splatter sfx: Splats.wav by jjxmf -- https://freesound.org/s/551449/ -- License: Creative Commons 0  
+
+Music:    
+https://www.looperman.com/loops/detail/392577/simple-trap-drum-and-808-loop-free-138bpm-trap-drum-loop  
+  
+https://www.looperman.com/loops/detail/392576/2hollis-drum-and-808-loop-free-140bpm-trap-drum-loop
