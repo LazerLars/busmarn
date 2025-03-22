@@ -58,7 +58,7 @@ local warning_msg = {
 local spawn_Settings = {
     timer = 0,
     spawn_now = false,
-    spawn_interval = 1,
+    spawn_interval = 0.9,
     spawn_counter = 0,
 }
 
@@ -227,6 +227,12 @@ function love.load()
     timer_buttons_change_position()
 
     spawn_meter_init()
+
+    local passenger_generator = math.random(2, 7)
+
+    for i = 1, passenger_generator, 1 do
+        add_pasenger()
+    end
     
 end
 
@@ -333,6 +339,11 @@ function love.update(dt)
         if tik_tok_counter > 5 then
             tik_tok_counter = 0
         end
+
+        if sfx.driving:isPlaying() then
+            sfx.driving:stop()
+            sfx.idle:play()
+        end
     end
 end
 
@@ -433,7 +444,7 @@ function love.draw()
     
     if pause_game then
         love.graphics.setColor(50/255,50/255,57/255) 
-        love.graphics.rectangle("fill", 175, 40, settings.sceenWidth/2, 200)
+        love.graphics.rectangle("fill", 175, 40, settings.sceenWidth/2, 220)
         love.graphics.setColor(1,1,1)
 
         local start_text_x = 180
@@ -450,9 +461,12 @@ function love.draw()
         love.graphics.print("AND NOT PICK UP PASSENGERS...", start_text_x, start_text_y)
 
         start_text_y = start_text_y + line_height
-        -- love.graphics.draw(images.blood_00, start_text_x + 220, start_text_y, 0, 4, 4)
         love.graphics.setColor(217/255,87/255,99/255) 
         love.graphics.print("PASSENGERS NOT PICKED UP: " .. stats.passengers_not_picked_up, start_text_x, start_text_y)
+
+        start_text_y = start_text_y + line_height
+        love.graphics.setColor(217/255,87/255,99/255) 
+        love.graphics.print("PASSENGERS BORN: " .. stats.passengers_born, start_text_x, start_text_y)
         
         love.graphics.setColor(152/255,50/255,50/255) 
         start_text_y = start_text_y + line_height

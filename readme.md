@@ -1,14 +1,25 @@
 # BUSMARN
-LÖVE JAM 2025  
+LÖVE JAM 2025 - THEME " PLANNING "  
+https://itch.io/jam/love2d-jam-2025  
 
-# game about how not to pick up passengers  
+### THIS IS A GAME ABOUT HOW YOU PLAN NOT TO PICK UP ANY PASSENGERS
 
+![](busmarn_final.gif)  
+
+Progress bar:   
 1st session (3½ hours):
 ![](busmarn_love2d_2025_jam.gif)  
 2nd session (3hrs21min)  
 ![](busmarn_7_hours_in_resized.gif)  
 3nd session (38 min)  
+No gif... :D 
+4nd session (3hrs51min)  
+![](busmarn_final.gif)
 
+Total time spend: 11hrs20min
+
+Coding setup: VScode
+Spriting: Asesprite
 
 Atributions:  
 https://github.com/adekto/maid64
