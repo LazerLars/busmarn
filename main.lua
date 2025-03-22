@@ -24,7 +24,14 @@ draw_hit_boxes = false
 
 local pause_game = false
 
-local play_music = true
+local play_music = false
+local play_music_icon = {
+    x = settings.sceenWidth-30,
+    y = 10,
+    width = 16,
+    height = 16,
+    scaling = 1
+}
 
 local image_path = {}
 
@@ -146,6 +153,8 @@ function love.load()
     image_path.button_green_down = "src/sprites/effects/button_green_down.png"
     image_path.button_red_up = "src/sprites/effects/button_red_up.png"
     image_path.button_red_down = "src/sprites/effects/button_red_down.png"
+    image_path.node_play = "src/sprites/effects/node_16_16.png"
+    image_path.node_mute = "src/sprites/effects/no_node.png"
     
     -- create the images
     images.watermelon_cursor = love.graphics.newImage(image_path.watermelon_cursor)
@@ -165,6 +174,8 @@ function love.load()
     images.button_green_down = love.graphics.newImage(image_path.button_green_down)
     images.button_red_up = love.graphics.newImage(image_path.button_red_up)
     images.button_red_down = love.graphics.newImage(image_path.button_red_down)
+    images.node_play = love.graphics.newImage(image_path.node_play)
+    images.node_mute = love.graphics.newImage(image_path.node_mute)
 
     
     grids.bus_idle_grid = anim8.newGrid(24, 12, images.bus_idle_sheet:getWidth(), images.bus_idle_sheet:getHeight())
@@ -203,12 +214,6 @@ function love.load()
     sfx.music_loop_01:setVolume(0.3)
 
 
-    local choose_music_loop = math.random(1,2)
-    if choose_music_loop == 1 then
-        sfx.music_loop_00:play()
-    else
-        sfx.music_loop_01:play()
-    end
     sfx.idle:play()
     -- set initial position of the buttons
     timer_buttons_init()
@@ -394,7 +399,6 @@ function love.draw()
     -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, 2, 2)
     -- draw left facing bus, offset with the width of the original bus image
     -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, -2, 2, 24, 0)
-    local spawn_rate_width = 150
     love.graphics.rectangle('fill', spawn_meter_pin.bar_x, spawn_meter_pin.bar_y, spawn_meter_pin.bar_width, spawn_meter_pin.bar_height)
     love.graphics.setColor(63/255, 63/255, 116/255)
     love.graphics.rectangle('fill', spawn_meter_pin.x , spawn_meter_pin.y, spawn_meter_pin.width, spawn_meter_pin.height)
@@ -461,6 +465,13 @@ function love.draw()
         
         -- love.graphics.print("Passengers not picked up: 200", 180, 45)
     end
+
+    if play_music then
+        love.graphics.draw(images.node_play, play_music_icon.x, play_music_icon.y, 0, 1,1)
+    else
+        love.graphics.draw(images.node_mute, play_music_icon.x, play_music_icon.y, 0, 1,1)
+    end
+    
     love.graphics.draw(images.watermelon_cursor,maid64.mouse.getX(), maid64.mouse.getY())
 
     maid64.finish()--finishes the maid64 process
@@ -514,6 +525,35 @@ function love.mousepressed(x, y, button, istouch)
     if button == 1 then -- Versions prior to 0.10.0 use the MouseConstant 'l'
         mouse.x_start = maid64.mouse.getX()
         mouse.y_start = maid64.mouse.getY()
+
+        -- check if music button is pressed
+        local mouse_obj = {}
+        mouse_obj.x = mouse_x
+        mouse_obj.y = mouse_y
+        mouse_obj.width = 2
+        mouse_obj.height = 2
+        mouse_obj.scaling = 1
+        local collison = collision_check(mouse_obj, play_music_icon)
+        if collison then
+            if play_music == false then
+                play_music = true
+                local choose_music_loop = math.random(1,2)
+                if choose_music_loop == 1 then
+                    sfx.music_loop_00:play()
+                else
+                    sfx.music_loop_01:play()
+                end
+            else
+                play_music = false
+                if sfx.music_loop_00:isPlaying() then
+                    sfx.music_loop_00:stop()
+                end
+                if sfx.music_loop_01:isPlaying() then
+                    sfx.music_loop_01:stop()
+                    
+                end
+            end
+        end
     end
 
     if button == 2 then
