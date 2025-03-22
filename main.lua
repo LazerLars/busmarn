@@ -578,6 +578,9 @@ function love.mousepressed(x, y, button, istouch)
     -- when the left mouse is released we want to reset the mouse selection so we can stop drawing the square on the screen
     if button == 1 then
         copy_last_mouse_selection()
+        for key, passenger in pairs(passengers) do
+            local collsion = collision_check(passenger, mouse)
+        end
         reset_mouse_selection()
     end
  end
