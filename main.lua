@@ -22,6 +22,8 @@ local settings = {
 developerMode = true
 draw_hit_boxes = false
 
+local pause_game = false
+
 local image_path = {}
 
 local images = {}
@@ -198,94 +200,96 @@ function love.load()
 end
 
 function love.update(dt)
-    timer = timer + dt
-    spawn_Settings.timer = spawn_Settings.timer  + dt
-    if spawn_Settings.timer >= spawn_Settings.spawn_interval then
-        add_pasenger()
-        spawn_Settings.timer = 0
-        spawn_Settings.spawn_counter = spawn_Settings.spawn_counter + 1
-    end
-    for key, passenger in pairs(passengers) do
-        passenger.animation:update(dt)
-        local move_completed = passenger.move:update(dt)
-        if move_completed then
-            local x_target = passenger.x + math.random(-50,50)
-            local y_target = passenger.y + math.random(-50,50)
-            if x_target > settings.screenHeight or x_target < 5 then
-                x_target = passenger.x + math.random(-50,50)
-            end
-            if y_target > settings.sceenWidth or y_target < 5 then
-                y_target = passenger.x + math.random(-50,50)
-            end
-            local time_to_target = math.random(2,10)
-            -- create tween to move passenger
-            passenger.move = tween.new(time_to_target, passenger, {x=x_target, y=y_target}, tween.easing.inOutSine)
-        end
-    end
+    if pause_game == false then
 
-    -- check collision
-    for key, passenger in pairs(passengers) do
-        local collision = collision_check(passenger, bus)
-        if collision then
-            print("-collision detected")
-            stats.passenger_count = stats.passenger_count + 1
-            passenger.collision = true
-            bus.collision = true
-            add_blood_splat(passenger)
-            table.remove(passengers, key)
-        else 
-            passenger.collision = false
-            bus.collision = false
+        timer = timer + dt
+        spawn_Settings.timer = spawn_Settings.timer  + dt
+        if spawn_Settings.timer >= spawn_Settings.spawn_interval then
+            add_pasenger()
+            spawn_Settings.timer = 0
+            spawn_Settings.spawn_counter = spawn_Settings.spawn_counter + 1
         end
-    end
+        for key, passenger in pairs(passengers) do
+            passenger.animation:update(dt)
+            local move_completed = passenger.move:update(dt)
+            if move_completed then
+                local x_target = passenger.x + math.random(-50,50)
+                local y_target = passenger.y + math.random(-50,50)
+                if x_target > settings.screenHeight or x_target < 5 then
+                    x_target = passenger.x + math.random(-50,50)
+                end
+                if y_target > settings.sceenWidth or y_target < 5 then
+                    y_target = passenger.x + math.random(-50,50)
+                end
+                local time_to_target = math.random(2,10)
+                -- create tween to move passenger
+                passenger.move = tween.new(time_to_target, passenger, {x=x_target, y=y_target}, tween.easing.inOutSine)
+            end
+        end
 
-    for key, button in pairs(buttons) do
-        local collision = collision_check(button, bus)
-        if collision then
-            button.collision = true
-            if button.increase_button then
-                spawn_meter_pin.x = spawn_meter_pin.x + dt * 10
-                spawn_Settings.spawn_interval = spawn_Settings.spawn_interval - 0.0003
+        -- check collision
+        for key, passenger in pairs(passengers) do
+            local collision = collision_check(passenger, bus)
+            if collision then
+                print("-collision detected")
+                stats.passenger_count = stats.passenger_count + 1
+                passenger.collision = true
+                bus.collision = true
+                add_blood_splat(passenger)
+                table.remove(passengers, key)
+            else 
+                passenger.collision = false
+                bus.collision = false
+            end
+        end
+
+        for key, button in pairs(buttons) do
+            local collision = collision_check(button, bus)
+            if collision then
+                button.collision = true
+                if button.increase_button then
+                    spawn_meter_pin.x = spawn_meter_pin.x + dt * 10
+                    spawn_Settings.spawn_interval = spawn_Settings.spawn_interval - 0.0003
+                else
+                    spawn_meter_pin.x = spawn_meter_pin.x - dt * 10
+                    spawn_Settings.spawn_interval = spawn_Settings.spawn_interval + 0.0003
+                end
             else
-                spawn_meter_pin.x = spawn_meter_pin.x - dt
-                spawn_Settings.spawn_interval = spawn_Settings.spawn_interval + dt * 10
+                button.collision = false
             end
-        else
-            button.collision = false
+            
         end
+        mouse_x = maid64.mouse.getX()
+        mouse_y = maid64.mouse.getY()
+        animations.bus_idle_animation:update(dt)
+        animations.bus_driving_animation:update(dt)
+        if love.mouse.isDown(1) then
+            mouse.x_current = maid64.mouse.getX()
+            mouse.y_current = maid64.mouse.getY()
+            mouse.width = mouse.x_current - mouse.x_start
+            mouse.height = mouse.y_current - mouse.y_start
+        end	
+
+
+        bus.distance_to_target = calculate_distance_between_two_targets(bus.x, bus.y, bus.x_target, bus.y_target)
+
+        local move_bus_complete = move_bus:update(dt)
         
-    end
-    mouse_x = maid64.mouse.getX()
-    mouse_y = maid64.mouse.getY()
-    animations.bus_idle_animation:update(dt)
-    animations.bus_driving_animation:update(dt)
-    if love.mouse.isDown(1) then
-		mouse.x_current = maid64.mouse.getX()
-		mouse.y_current = maid64.mouse.getY()
-        mouse.width = mouse.x_current - mouse.x_start
-        mouse.height = mouse.y_current - mouse.y_start
-	end	
-
-
-    bus.distance_to_target = calculate_distance_between_two_targets(bus.x, bus.y, bus.x_target, bus.y_target)
-
-    local move_bus_complete = move_bus:update(dt)
-    
-    if bus.distance_to_target < 50 and bus.distance_to_target > 1 then
-        if sfx.driving:isPlaying() then
-            sfx.driving:stop()
+        if bus.distance_to_target < 50 and bus.distance_to_target > 1 then
+            if sfx.driving:isPlaying() then
+                sfx.driving:stop()
+            end
+            sfx.brake:play()
+            bus.bus_state = bus_states.braking
         end
-        sfx.brake:play()
-        bus.bus_state = bus_states.braking
-    end
-    if move_bus_complete then
-        bus.bus_state = bus_states.idleing
-        if sfx.driving:isPlaying() then
-            sfx.driving:stop()
+        if move_bus_complete then
+            bus.bus_state = bus_states.idleing
+            if sfx.driving:isPlaying() then
+                sfx.driving:stop()
+            end
+            sfx.idle:play()
         end
-        sfx.idle:play()
     end
-
 end
 
 
@@ -293,7 +297,7 @@ end
 function love.draw()
     
     maid64.start()--starts the maid64 process
-   
+    
     love.graphics.setLineStyle('rough')
 
     for key, button in pairs(buttons) do
@@ -369,7 +373,11 @@ function love.draw()
     love.graphics.rectangle('fill', spawn_meter_pin.x , spawn_meter_pin.y, spawn_meter_pin.width, spawn_meter_pin.height)
     love.graphics.setColor(1,1,1)
     
-
+    if pause_game then
+        love.graphics.setColor(50/255,50/255,57/255) 
+        love.graphics.rectangle("fill", 175, 40, settings.sceenWidth/2, 200)
+        love.graphics.setColor(1,1,1)
+    end
     love.graphics.draw(images.watermelon_cursor,maid64.mouse.getX(), maid64.mouse.getY())
 
     maid64.finish()--finishes the maid64 process
@@ -392,6 +400,16 @@ function love.keypressed(key)
             draw_hit_boxes = false
         else
             draw_hit_boxes = true
+        end
+    end
+
+    if key == "escape" then
+        if pause_game == false then
+            print("pause game")
+            pause_game = true
+        else
+            print("resume game")
+            pause_game = false
         end
     end
 
