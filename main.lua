@@ -19,7 +19,7 @@ local settings = {
     screenHeight = 360
 }
 
-developerMode = true
+developerMode = false
 draw_hit_boxes = false
 
 local pause_game = false
@@ -95,12 +95,13 @@ local stats = {
 
 
 local mouse = {
-    x_start = 0,
-    y_start = 0,
+    x = 0,
+    y = 0,
     x_current = 0,
     y_current = 0,
     width = 0, -- used to store the value of the width of the current ongoing selection
-    height = 0 -- used to store the value of the height of the current on going selection
+    height = 0, -- used to store the value of the height of the current on going selection
+    scaling = 1 -- used in our collision function
 }
 
 local timer = 0
@@ -202,6 +203,7 @@ function love.load()
     sfx.idle:setLooping(true)
     sfx.idle:setVolume(0.5)
     sfx.brake = love.audio.newSource("src/sfx/sfx_braking_car_short.wav", 'static')
+    sfx.brake:setVolume(0.3)
     sfx.blood_00 = love.audio.newSource("src/sfx/splatter/sfx_splat_00.wav", "static")
     sfx.blood_01 = love.audio.newSource("src/sfx/splatter/sfx_splat_01.wav", "static")
     sfx.blood_02 = love.audio.newSource("src/sfx/splatter/sfx_splat_02.wav", "static")
@@ -291,8 +293,8 @@ function love.update(dt)
         if love.mouse.isDown(1) then
             mouse.x_current = maid64.mouse.getX()
             mouse.y_current = maid64.mouse.getY()
-            mouse.width = mouse.x_current - mouse.x_start
-            mouse.height = mouse.y_current - mouse.y_start
+            mouse.width = mouse.x_current - mouse.x
+            mouse.height = mouse.y_current - mouse.y
         end	
 
 
@@ -365,7 +367,7 @@ function love.draw()
     end
     
     
-    love.graphics.rectangle("line", mouse.x_start, mouse.y_start, mouse.width, mouse.height)
+    love.graphics.rectangle("line", mouse.x, mouse.y, mouse.width, mouse.height)
     
     -- draw right facing bus
     if bus.facing_left then
@@ -523,8 +525,8 @@ end
 function love.mousepressed(x, y, button, istouch)
     -- when the leftm mouse  is pressed, we want to save the initial click x,y position
     if button == 1 then -- Versions prior to 0.10.0 use the MouseConstant 'l'
-        mouse.x_start = maid64.mouse.getX()
-        mouse.y_start = maid64.mouse.getY()
+        mouse.x = maid64.mouse.getX()
+        mouse.y = maid64.mouse.getY()
 
         -- check if music button is pressed
         local mouse_obj = {}
@@ -578,9 +580,7 @@ function love.mousepressed(x, y, button, istouch)
     -- when the left mouse is released we want to reset the mouse selection so we can stop drawing the square on the screen
     if button == 1 then
         copy_last_mouse_selection()
-        for key, passenger in pairs(passengers) do
-            local collsion = collision_check(passenger, mouse)
-        end
+
         reset_mouse_selection()
     end
  end
@@ -593,8 +593,8 @@ end
 
 function reset_mouse_selection()
 
-    mouse.x_start = 0
-    mouse.y_start = 0
+    mouse.x = 0
+    mouse.y = 0
     mouse.x_current = 0
     mouse. y_current = 0
     mouse.width = 0
