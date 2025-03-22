@@ -162,6 +162,10 @@ function love.load()
     sfx.idle = love.audio.newSource("src/sfx/sfx_bus_idle.wav", 'static')
     sfx.idle:setLooping(true)
     sfx.brake = love.audio.newSource("src/sfx/sfx_braking_car_short.wav", 'static')
+    sfx.blood_00 = love.audio.newSource("src/sfx/splatter/sfx_splat_00.wav", "static")
+    sfx.blood_01 = love.audio.newSource("src/sfx/splatter/sfx_splat_01.wav", "static")
+    sfx.blood_02 = love.audio.newSource("src/sfx/splatter/sfx_splat_02.wav", "static")
+    sfx.blood_03 = love.audio.newSource("src/sfx/splatter/sfx_splat_03.wav", "static")
 
     sfx.idle:play()
     
@@ -486,6 +490,7 @@ function add_blood_splat(passenger)
     end
 
     table.insert(effects, blood_sfx)
+    play_splatter_sound()
 end
 
 function collision_check(object_a, object_b)
@@ -509,6 +514,21 @@ function collision_check(object_a, object_b)
                         a_top < b_bottom
 
     return isColliding
+end
+
+function play_splatter_sound()
+    local choose_splat_sfx = math.random(1,4)
+
+    if choose_splat_sfx == 0 then
+        sfx.blood_00:play()
+    elseif choose_splat_sfx == 1 then
+        sfx.blood_01:play()
+    elseif choose_splat_sfx == 2 then
+        sfx.blood_02:play()
+    elseif choose_splat_sfx == 3 then
+        sfx.blood_03:play()
+    end
+    
 end
 
 function add_wheel_marks()
