@@ -20,7 +20,7 @@ local settings = {
 }
 
 developerMode = true
-draw_hit_boxes = true
+draw_hit_boxes = false
 
 local image_path = {}
 
@@ -122,6 +122,10 @@ function love.load()
     image_path.blood_02 = "src/sprites/effects/blood_02.png"
     image_path.blood_03 = "src/sprites/effects/blood_03.png"
     image_path.blood_04 = "src/sprites/effects/blood_04.png"
+    image_path.button_green_up = "src/sprites/effects/button_green_up.png"
+    image_path.button_green_down = "src/sprites/effects/button_green_down.png"
+    image_path.button_red_up = "src/sprites/effects/button_red_up.png"
+    image_path.button_red_down = "src/sprites/effects/button_red_up.png"
     
     -- create the images
     images.watermelon_cursor = love.graphics.newImage(image_path.watermelon_cursor)
@@ -137,6 +141,10 @@ function love.load()
     images.blood_02 = love.graphics.newImage(image_path.blood_02)
     images.blood_03 = love.graphics.newImage(image_path.blood_03)
     images.blood_04 = love.graphics.newImage(image_path.blood_04)
+    images.button_green_up = love.graphics.newImage(image_path.button_green_up)
+    images.button_green_down = love.graphics.newImage(image_path.button_green_down)
+    images.button_red_up = love.graphics.newImage(image_path.button_red_up)
+    images.button_up_down = love.graphics.newImage(image_path.button_red_down)
 
     
     grids.bus_idle_grid = anim8.newGrid(24, 12, images.bus_idle_sheet:getWidth(), images.bus_idle_sheet:getHeight())
@@ -330,14 +338,12 @@ function love.keypressed(key)
         add_pasenger()
     end
 
-    if key == "escape" then
-        print("escape")
+    if key == "." then
         if draw_hit_boxes then
             draw_hit_boxes = false
         else
             draw_hit_boxes = true
         end
-    
     end
 
     -- toggle fullscreen
