@@ -43,7 +43,18 @@ local spawn_Settings = {
     timer = 0,
     spawn_now = false,
     spawn_interval = 1,
-    spawn_counter = 0
+    spawn_counter = 0,
+}
+
+local spawn_meter_pin = {
+    x = nil,
+    y = nil,
+    width = nil,
+    height = nil,
+    bar_x = nil,
+    bar_y = nil,
+    bar_width = nil,
+    bar_height = nil
 }
 
 local bus_states = {
@@ -181,6 +192,8 @@ function love.load()
     -- set initial position of the buttons
     timer_buttons_init()
     timer_buttons_change_position()
+
+    spawn_meter_init()
     
 end
 
@@ -343,7 +356,13 @@ function love.draw()
     -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, 2, 2)
     -- draw left facing bus, offset with the width of the original bus image
     -- animations.bus_idle_animation:draw(images.bus_idle_sheet, maid64.mouse.getX(),maid64.mouse.getY(), 0, -2, 2, 24, 0)
+    local spawn_rate_width = 150
+    love.graphics.rectangle('fill', spawn_meter_pin.bar_x, spawn_meter_pin.bar_y, spawn_meter_pin.bar_width, spawn_meter_pin.bar_height)
+    love.graphics.setColor(63/255, 63/255, 116/255)
+    love.graphics.rectangle('fill', spawn_meter_pin.x , spawn_meter_pin.y, spawn_meter_pin.width, spawn_meter_pin.height)
+    love.graphics.setColor(1,1,1)
     
+
     love.graphics.draw(images.watermelon_cursor,maid64.mouse.getX(), maid64.mouse.getY())
 
     maid64.finish()--finishes the maid64 process
@@ -598,6 +617,26 @@ function timer_buttons_change_position()
         button.x = x
         button.y = y
     end
+end
+
+function spawn_meter_init()
+    local spawn_bar_width = 150
+  
+    spawn_meter_pin = {
+        x = 0,
+        y = 5,
+        width = 5,
+        height = 12,
+        bar_x = 0,
+        bar_y = 10,
+        bar_width = spawn_bar_width,
+        bar_height = 2,
+        
+
+    }
+    spawn_meter_pin.x = (settings.sceenWidth / 2)
+    spawn_meter_pin.bar_x = (settings.sceenWidth / 2) - (spawn_bar_width / 2)
+
 end
 
 
