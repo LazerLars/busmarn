@@ -80,7 +80,8 @@ local bus = {
 }
 
 local stats = {
-    passenger_count = 0
+    passengers_not_picked_up = 0,
+    passengers_born = 0
 }
 
 
@@ -94,6 +95,8 @@ local mouse = {
 }
 
 local timer = 0
+
+local tik_tok_counter = 0
 
 local mouse_last_selection = mouse
 
@@ -208,6 +211,7 @@ function love.update(dt)
             add_pasenger()
             spawn_Settings.timer = 0
             spawn_Settings.spawn_counter = spawn_Settings.spawn_counter + 1
+            stats.passengers_born = stats.passengers_born + 1
         end
         for key, passenger in pairs(passengers) do
             passenger.animation:update(dt)
@@ -232,7 +236,7 @@ function love.update(dt)
             local collision = collision_check(passenger, bus)
             if collision then
                 print("-collision detected")
-                stats.passenger_count = stats.passenger_count + 1
+                stats.passengers_not_picked_up = stats.passengers_not_picked_up + 1
                 passenger.collision = true
                 bus.collision = true
                 add_blood_splat(passenger)
@@ -288,6 +292,13 @@ function love.update(dt)
                 sfx.driving:stop()
             end
             sfx.idle:play()
+        end
+    end
+
+    if pause_game then
+        tik_tok_counter = tik_tok_counter + dt * 5
+        if tik_tok_counter > 5 then
+            tik_tok_counter = 0
         end
     end
 end
@@ -387,20 +398,40 @@ function love.draw()
         start_text_y = start_text_y + line_height
         love.graphics.print("GET BACK IN THE BUS PIT", start_text_x, start_text_y)
 
+        
         start_text_y = start_text_y + line_height
         love.graphics.print("AND NOT PICK UP PASSENGERS...", start_text_x, start_text_y)
 
         start_text_y = start_text_y + line_height
-        love.graphics.print("PASSENGERS NOT PICKED UP: 200", start_text_x, start_text_y)
-
+        -- love.graphics.draw(images.blood_00, start_text_x + 220, start_text_y, 0, 4, 4)
+        love.graphics.setColor(217/255,87/255,99/255) 
+        love.graphics.print("PASSENGERS NOT PICKED UP: " .. stats.passengers_not_picked_up, start_text_x, start_text_y)
+        
+        love.graphics.setColor(152/255,50/255,50/255) 
         start_text_y = start_text_y + line_height
         love.graphics.print("TIME NOT WASTED: " .. love.timer.getTime(), start_text_x, start_text_y)
-        
+        love.graphics.setColor(1,1,1)
+
         start_text_y = start_text_y + line_height
         love.graphics.print("SO YOU THOUGHT WE STOPPED THE TIME?: ", start_text_x, start_text_y)
         
+
         start_text_y = start_text_y + line_height
-        love.graphics.print("TIK TOK TIK TOK..... ", start_text_x, start_text_y)
+        if tik_tok_counter >= 0 then
+            love.graphics.print("TIK TOK TIK TOK. ", start_text_x, start_text_y)
+        end
+        if tik_tok_counter >= 2  then
+            love.graphics.print("TIK TOK TIK TOK.. ", start_text_x, start_text_y)
+        end
+         if tik_tok_counter >= 3  then
+            love.graphics.print("TIK TOK TIK TOK... ", start_text_x, start_text_y)
+        end
+         if tik_tok_counter >= 4  then
+            love.graphics.print("TIK TOK TIK TOK.... ", start_text_x, start_text_y)
+        end
+         if tik_tok_counter >= 5  then
+            love.graphics.print("TIK TOK TIK TOK..... ", start_text_x, start_text_y)
+        end
 
         start_text_y = start_text_y + line_height
         love.graphics.print("BREAKS IS FOR PUSSIES GET BACK IN!: ", start_text_x, start_text_y)
