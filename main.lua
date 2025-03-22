@@ -36,28 +36,7 @@ local passengers = {}
 
 local effects = {}
 
-local buttons = {
-    timer_increase_button = {
-        up_image = nil,
-        down_image = nil,
-        x = nil,
-        y = nil,
-        width = nil,
-        height = nil,
-        scale = nil,
-        collision = nil
-    },
-    timer_decrease_button = {
-        up_image = nil,
-        down_image = nil,
-        x = nil,
-        y = nil,
-        width = nil,
-        height = nil,
-        scale = nil,
-        collision = nil
-    }
-}
+local buttons = {}
 
 
 local spawn_Settings = {
@@ -148,7 +127,7 @@ function love.load()
     image_path.button_green_up = "src/sprites/effects/button_green_up.png"
     image_path.button_green_down = "src/sprites/effects/button_green_down.png"
     image_path.button_red_up = "src/sprites/effects/button_red_up.png"
-    image_path.button_red_down = "src/sprites/effects/button_red_up.png"
+    image_path.button_red_down = "src/sprites/effects/button_red_down.png"
     
     -- create the images
     images.watermelon_cursor = love.graphics.newImage(image_path.watermelon_cursor)
@@ -167,7 +146,7 @@ function love.load()
     images.button_green_up = love.graphics.newImage(image_path.button_green_up)
     images.button_green_down = love.graphics.newImage(image_path.button_green_down)
     images.button_red_up = love.graphics.newImage(image_path.button_red_up)
-    images.button_up_down = love.graphics.newImage(image_path.button_red_down)
+    images.button_red_down = love.graphics.newImage(image_path.button_red_down)
 
     
     grids.bus_idle_grid = anim8.newGrid(24, 12, images.bus_idle_sheet:getWidth(), images.bus_idle_sheet:getHeight())
@@ -246,6 +225,11 @@ function love.update(dt)
             bus.collision = false
         end
     end
+
+    for key, buttons in pairs(buttons) do
+        
+        
+    end
     mouse_x = maid64.mouse.getX()
     mouse_y = maid64.mouse.getY()
     animations.bus_idle_animation:update(dt)
@@ -287,8 +271,13 @@ function love.draw()
    
     love.graphics.setLineStyle('rough')
 
-    love.graphics.draw(buttons.timer_increase_button.up_image, buttons.timer_increase_button.x, buttons.timer_increase_button.y, 0, buttons.timer_increase_button.scale, buttons.timer_increase_button.scale)
-    love.graphics.draw(buttons.timer_decrease_button.up_image, buttons.timer_decrease_button.x, buttons.timer_decrease_button.y, 0, buttons.timer_decrease_button.scale, buttons.timer_decrease_button.scale)
+    for key, button in pairs(buttons) do
+        if button.collision then
+            love.graphics.draw(button.up_image, button.x, button.y, 0, button.scale, button.scale)
+        else
+            love.graphics.draw(button.down_image, button.x, button.y, 0, button.scale, button.scale)
+        end
+    end
     
     for key, blood_effect in pairs(effects) do
         love.graphics.draw(blood_effect.image, blood_effect.x, blood_effect.y, 0, 2, 2)
@@ -571,8 +560,8 @@ function add_wheel_marks()
 end
 
 function timer_buttons_init()
-    buttons = {
-        timer_increase_button = {
+    local button = {}
+    button = {
             up_image = images.button_green_up,
             down_image = images.button_green_down,
             x = 0,
@@ -581,33 +570,29 @@ function timer_buttons_init()
             height = 12,
             scale = 2,
             collision = false
-        },
-        timer_decrease_button = {
-            up_image = images.button_red_up,
-            down_image = images.button_red_down,
-            x = 0,
-            y = 0,
-            width = 20,
-            height = 12,
-            scale = 2,
-            collision = false
         }
+           
+    table.insert(buttons, button)
+    button = {
+        up_image = images.button_red_up,
+        down_image = images.button_red_down,
+        x = 0,
+        y = 0,
+        width = 20,
+        height = 12,
+        scale = 2,
+        collision = false
     }
+    table.insert(buttons, button)
 end
 
 function timer_buttons_change_position()
-    local increase_x, increase_y, decrease_x, decrease_y = 0,0,0,0
-    
-    increase_x = math.random(0, 600)
-    increase_y = math.random(0, 340)
-
-    decrease_x = math.random(0, 600)
-    decrease_y = math.random(0, 340)
-
-    buttons.timer_increase_button.x = increase_x
-    buttons.timer_increase_button.y = increase_y
-    buttons.timer_decrease_button.x = decrease_x
-    buttons.timer_decrease_button.y = decrease_y
+    for key, button in pairs(buttons) do
+        local x = math.random(0, 600)
+        local y = math.random(0, 340)
+        button.x = x
+        button.y = y
+    end
 end
 
 
