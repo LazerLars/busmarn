@@ -243,6 +243,13 @@ function love.update(dt)
         local collision = collision_check(button, bus)
         if collision then
             button.collision = true
+            if button.increase_button then
+                spawn_meter_pin.x = spawn_meter_pin.x + dt * 10
+                spawn_Settings.spawn_interval = spawn_Settings.spawn_interval - 0.0003
+            else
+                spawn_meter_pin.x = spawn_meter_pin.x - dt
+                spawn_Settings.spawn_interval = spawn_Settings.spawn_interval + dt * 10
+            end
         else
             button.collision = false
         end
@@ -593,7 +600,8 @@ function timer_buttons_init()
             width = 20,
             height = 12,
             scaling = 2,
-            collision = false
+            collision = false,
+            increase_button = true
         }
            
     table.insert(buttons, button)
@@ -605,7 +613,8 @@ function timer_buttons_init()
         width = 20,
         height = 12,
         scaling = 2,
-        collision = false
+        collision = false,
+        increase_button = false
     }
     table.insert(buttons, button)
 end
