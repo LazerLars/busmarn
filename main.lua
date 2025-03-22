@@ -49,6 +49,11 @@ local effects = {}
 
 local buttons = {}
 
+local warning_msg = {
+    x = 40,
+    y = 40
+}
+
 
 local spawn_Settings = {
     timer = 0,
@@ -201,7 +206,7 @@ function love.load()
     sfx.driving:setLooping(true)
     sfx.idle = love.audio.newSource("src/sfx/sfx_bus_idle.wav", 'static')
     sfx.idle:setLooping(true)
-    sfx.idle:setVolume(0.5)
+    sfx.idle:setVolume(0.3)
     sfx.brake = love.audio.newSource("src/sfx/sfx_braking_car_short.wav", 'static')
     sfx.brake:setVolume(0.3)
     sfx.blood_00 = love.audio.newSource("src/sfx/splatter/sfx_splat_00.wav", "static")
@@ -316,6 +321,11 @@ function love.update(dt)
             end
             sfx.idle:play()
         end
+
+        warning_msg.x = warning_msg.x + 0.5
+        if warning_msg.x >= settings.sceenWidth then
+            warning_msg.x = -100
+        end
     end
 
     if pause_game then
@@ -405,6 +415,21 @@ function love.draw()
     love.graphics.setColor(63/255, 63/255, 116/255)
     love.graphics.rectangle('fill', spawn_meter_pin.x , spawn_meter_pin.y, spawn_meter_pin.width, spawn_meter_pin.height)
     love.graphics.setColor(1,1,1)
+
+    
+    if spawn_meter_pin.x >= 395 then
+        love.graphics.rectangle('fill', warning_msg.x-5, warning_msg.y-5, 360, 20)
+        love.graphics.setColor(217/255,87/255,99/255) 
+        love.graphics.print("THE PIN IS NOT LEVEL; GET IT BACK YOU PSYCO!", warning_msg.x, warning_msg.y)
+        love.graphics.setColor(1,1,1) 
+    end
+    if spawn_meter_pin.x < 245 then
+        love.graphics.rectangle('fill', warning_msg.x-5, warning_msg.y-5, 375, 20)
+        love.graphics.setColor(217/255,87/255,99/255) 
+        love.graphics.print("HEEY PUSSY... GET THAT PIN BACK ON THE STICK!!", warning_msg.x, warning_msg.y)
+        love.graphics.setColor(1,1,1) 
+    end
+
     
     if pause_game then
         love.graphics.setColor(50/255,50/255,57/255) 
@@ -463,6 +488,7 @@ function love.draw()
 
         start_text_y = start_text_y + line_height
         love.graphics.print("LEEEGOO COMRADES....", start_text_x, start_text_y)
+
 
         
         -- love.graphics.print("Passengers not picked up: 200", 180, 45)

@@ -1,9 +1,6 @@
 TODO:
-
-+passenger count on the bus UI
 +Deliver the corpses on the station
-+Marker en npc og den springer i luften
-+Marker bussen og den springer i luften 
-+Knap man kan køre over på og så øger man spawn time osv
-+Tank benzin 
-Læs af station 
++Mark a passenger with the mouse and he will explode
++Mark the bus with the mouse and it will explode
++Gas station
++Load off corpses
