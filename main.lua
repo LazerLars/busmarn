@@ -36,7 +36,29 @@ local passengers = {}
 
 local effects = {}
 
-local wheel_marks = {}
+local buttons = {
+    timer_increase_button = {
+        up_image = nil,
+        down_image = nil,
+        x = nil,
+        y = nil,
+        width = nil,
+        height = nil,
+        scale = nil,
+        collision = nil
+    },
+    timer_decrease_button = {
+        up_image = nil,
+        down_image = nil,
+        x = nil,
+        y = nil,
+        width = nil,
+        height = nil,
+        scale = nil,
+        collision = nil
+    }
+}
+
 
 local spawn_Settings = {
     timer = 0,
@@ -91,6 +113,7 @@ function love.load()
     
     math.randomseed( os.time() )
     love.mouse.setVisible(false)
+    
     
     -- love.graphics.setBackgroundColor( 0/255, 135/255, 81/255) -- green
     love.graphics.setBackgroundColor( 227/255, 160/255, 102/255)
@@ -176,6 +199,9 @@ function love.load()
     sfx.blood_03 = love.audio.newSource("src/sfx/splatter/sfx_splat_03.wav", "static")
 
     sfx.idle:play()
+    -- set initial position of the buttons
+    timer_buttons_init()
+    timer_buttons_change_position()
     
 end
 
@@ -260,6 +286,9 @@ function love.draw()
     maid64.start()--starts the maid64 process
    
     love.graphics.setLineStyle('rough')
+
+    love.graphics.draw(buttons.timer_increase_button.up_image, buttons.timer_increase_button.x, buttons.timer_increase_button.y, 0, buttons.timer_increase_button.scale, buttons.timer_increase_button.scale)
+    love.graphics.draw(buttons.timer_decrease_button.up_image, buttons.timer_decrease_button.x, buttons.timer_decrease_button.y, 0, buttons.timer_decrease_button.scale, buttons.timer_decrease_button.scale)
     
     for key, blood_effect in pairs(effects) do
         love.graphics.draw(blood_effect.image, blood_effect.x, blood_effect.y, 0, 2, 2)
@@ -540,4 +569,45 @@ end
 function add_wheel_marks()
 
 end
+
+function timer_buttons_init()
+    buttons = {
+        timer_increase_button = {
+            up_image = images.button_green_up,
+            down_image = images.button_green_down,
+            x = 0,
+            y = 0,
+            width = 20,
+            height = 12,
+            scale = 2,
+            collision = false
+        },
+        timer_decrease_button = {
+            up_image = images.button_red_up,
+            down_image = images.button_red_down,
+            x = 0,
+            y = 0,
+            width = 20,
+            height = 12,
+            scale = 2,
+            collision = false
+        }
+    }
+end
+
+function timer_buttons_change_position()
+    local increase_x, increase_y, decrease_x, decrease_y = 0,0,0,0
+    
+    increase_x = math.random(0, 600)
+    increase_y = math.random(0, 340)
+
+    decrease_x = math.random(0, 600)
+    decrease_y = math.random(0, 340)
+
+    buttons.timer_increase_button.x = increase_x
+    buttons.timer_increase_button.y = increase_y
+    buttons.timer_decrease_button.x = decrease_x
+    buttons.timer_decrease_button.y = decrease_y
+end
+
 
