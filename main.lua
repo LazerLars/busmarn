@@ -377,6 +377,42 @@ function love.draw()
         love.graphics.setColor(50/255,50/255,57/255) 
         love.graphics.rectangle("fill", 175, 40, settings.sceenWidth/2, 200)
         love.graphics.setColor(1,1,1)
+
+        local start_text_x = 180
+        local start_text_y = 45
+        local line_height = 20
+
+        love.graphics.print("NOW IS NOT THE TIME TO QUIT MA DUDE!!", start_text_x, start_text_y)
+
+        start_text_y = start_text_y + line_height
+        love.graphics.print("GET BACK IN THE BUS PIT", start_text_x, start_text_y)
+
+        start_text_y = start_text_y + line_height
+        love.graphics.print("AND NOT PICK UP PASSENGERS...", start_text_x, start_text_y)
+
+        start_text_y = start_text_y + line_height
+        love.graphics.print("PASSENGERS NOT PICKED UP: 200", start_text_x, start_text_y)
+
+        start_text_y = start_text_y + line_height
+        love.graphics.print("TIME NOT WASTED: " .. love.timer.getTime(), start_text_x, start_text_y)
+        
+        start_text_y = start_text_y + line_height
+        love.graphics.print("SO YOU THOUGHT WE STOPPED THE TIME?: ", start_text_x, start_text_y)
+        
+        start_text_y = start_text_y + line_height
+        love.graphics.print("TIK TOK TIK TOK..... ", start_text_x, start_text_y)
+
+        start_text_y = start_text_y + line_height
+        love.graphics.print("BREAKS IS FOR PUSSIES GET BACK IN!: ", start_text_x, start_text_y)
+
+        start_text_y = start_text_y + line_height
+        love.graphics.print("NEITHER DO WE ALLOW RESTARTS!: ", start_text_x, start_text_y)
+
+        start_text_y = start_text_y + line_height
+        love.graphics.print("LEEEGOO COMRADES....", start_text_x, start_text_y)
+
+        
+        -- love.graphics.print("Passengers not picked up: 200", 180, 45)
     end
     love.graphics.draw(images.watermelon_cursor,maid64.mouse.getX(), maid64.mouse.getY())
 
